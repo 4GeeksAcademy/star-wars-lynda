@@ -1,15 +1,43 @@
-import React from "react";
-import rigoImage from "../../img/rigo-baby.jpg";
-import "../../styles/home.css";
+import React, { useContext, useEffect } from "react";
+import { Context } from "../store/appContext";
+import Card from "../component/card";
 
-export const Home = () => (
-	<div className="text-center mt-5">
-		<h1>Hello Rigo!</h1>
-		<p>
-			<img src={rigoImage} />
-		</p>
-		<a href="#" className="btn btn-success">
-			If you see this green button, bootstrap is working
-		</a>
-	</div>
-);
+function Home() {
+    const { store, actions } = useContext(Context);
+
+    useEffect(() => {
+        actions.loadEntities();
+        actions.loadLocations();
+        actions.loadEpisodes();
+    }, []);
+
+    return (
+        <div className="container mt-4">
+            {/* Characters */}
+            <h2 className="mb-3">Characters</h2>
+            <div className="scroll-container">
+                {store.characters.map((character) => (
+                    <Card key={character.id} entity={character} type="characters" />
+                ))}
+            </div>
+
+            {/* Locations */}
+            <h2 className="mb-3 mt-5">Locations</h2>
+            <div className="scroll-container">
+                {store.locations.map((location) => (
+                    <Card key={location.id} entity={location} type="locations" />
+                ))}
+            </div>
+
+            {/* Episodes */}
+            <h2 className="mb-3 mt-5">Episodes</h2>
+            <div className="scroll-container">
+                {store.episodes.map((episode) => (
+                    <Card key={episode.id} entity={episode} type="episodes" />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export default Home;
