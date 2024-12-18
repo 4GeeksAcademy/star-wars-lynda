@@ -10,9 +10,9 @@ const Layout = () => {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/characters/:id" element={<CharacterDetail />} />
-                <Route path="/locations/:id" element={<CharacterDetail />} />
-                <Route path="/episodes/:id" element={<CharacterDetail />} />
+                <Route path="/characters/:id" element={<CharacterDetail type="characters" />} />
+                <Route path="/locations/:id" element={<CharacterDetail type="locations" />} />
+                <Route path="/episodes/:id" element={<CharacterDetail type="episodes" />} />
                 <Route path="*" element={<h1>404 Not Found</h1>} />
             </Routes>
         </Router>

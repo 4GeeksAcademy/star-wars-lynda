@@ -1,23 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-const CharacterDetail = () => {
+const CharacterDetail = ({ type }) => {
     const { id } = useParams();
-    const [character, setCharacter] = useState(null);
+    const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Función para obtener la URL de la API según el tipo
+    const getApiUrl = (type, id) => {
+        switch (type) {
+            case "characters":
+                return `https://rickandmortyapi.com/api/character/${id}`;
+            case "locations":
+                return `https://rickandmortyapi.com/api/location/${id}`;
+            case "episodes":
+                return `https://rickandmortyapi.com/api/episode/${id}`;
+            default:
+                throw new Error("Invalid type");
+        }
+    };
+
     useEffect(() => {
-        const fetchCharacter = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                setError(null); // Limpiar errores anteriores
-                const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
+                setError(null);
+                const url = getApiUrl(type, id);
+                const response = await fetch(url);
+
                 if (!response.ok) {
                     throw new Error(`Error ${response.status}: ${response.statusText}`);
                 }
-                const data = await response.json();
-                setCharacter(data);
+
+                const result = await response.json();
+                setData(result);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -25,8 +42,8 @@ const CharacterDetail = () => {
             }
         };
 
-        fetchCharacter();
-    }, [id]);
+        fetchData();
+    }, [id, type]);
 
     return (
         <div className="container mt-5">
@@ -34,22 +51,40 @@ const CharacterDetail = () => {
                 <p className="text-center">Loading...</p>
             ) : error ? (
                 <p className="text-center text-danger">{error}</p>
-            ) : character ? (
+            ) : data ? (
                 <div className="text-center">
-                    <img
-                        src={character.image}
-                        alt={character.name}
-                        className="img-fluid mb-4 rounded-circle"
-                        style={{ width: "200px", height: "200px", objectFit: "cover" }}
-                    />
-                    <h1 className="mb-3">{character.name}</h1>
-                    <p className="lead">Status: {character.status}</p>
-                    <p className="lead">Species: {character.species}</p>
-                    <p className="lead">Gender: {character.gender}</p>
-                    <p className="lead">Origin: {character.origin?.name || "Unknown"}</p>
+                    <h1 className="mb-3">{data.name}</h1>
+                    {type === "characters" && (
+                        <>
+                            <img
+                                src={data.image}
+                                alt={data.name}
+                                className="img-fluid mb-4 rounded-circle"
+                                style={{ width: "200px", height: "200px", objectFit: "cover" }}
+                            />
+                            <p><strong>Status:</strong> {data.status}</p>
+                            <p><strong>Species:</strong> {data.species}</p>
+                            <p><strong>Gender:</strong> {data.gender}</p>
+                            <p><strong>Origin:</strong> {data.origin?.name || "Unknown"}</p>
+                        </>
+                    )}
+                    {type === "locations" && (
+                        <>
+                            <p><strong>Type:</strong> {data.type}</p>
+                            <p><strong>Dimension:</strong> {data.dimension}</p>
+                            <p><strong>Residents:</strong> {data.residents.length} residents</p>
+                        </>
+                    )}
+                    {type === "episodes" && (
+                        <>
+                            <p><strong>Episode:</strong> {data.episode}</p>
+                            <p><strong>Air Date:</strong> {data.air_date}</p>
+                            <p><strong>Characters in Episode:</strong> {data.characters.length}</p>
+                        </>
+                    )}
                 </div>
             ) : (
-                <p className="text-center">Character details not found.</p>
+                <p className="text-center">No data found.</p>
             )}
         </div>
     );
